@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-regex",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "This is an n8n community node. It lets you use regular expressions (regex) directly in your n8n workflows for advanced text matching and extraction.",
   "keywords": [
     "n8n-community-node-package"

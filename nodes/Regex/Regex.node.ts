@@ -3,13 +3,9 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	IExecuteFunctions
 } from 'n8n-workflow';
-
-import {
-	NodeConnectionType,
-	IExecuteFunctions,
-	NodeOperationError,
-} from 'n8n-workflow';
+import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
 export class Regex implements INodeType {
 	description: INodeTypeDescription = {
@@ -48,15 +44,15 @@ export class Regex implements INodeType {
 				name: 'flags',
 				type: 'multiOptions',
 				options: [
-					{ name: 'Global (g)', value: 'g' },
-					{ name: 'Ignore Case (i)', value: 'i' },
-					{ name: 'Multiline (m)', value: 'm' },
-					{ name: 'Dot All (s)', value: 's' },
-					{ name: 'Unicode (u)', value: 'u' },
-					{ name: 'Sticky (y)', value: 'y' },
+					{ name: 'Dot All (S)', value: 's' },
+					{ name: 'Global (G)', value: 'g' },
+					{ name: 'Ignore Case (I)', value: 'i' },
+					{ name: 'Multiline (M)', value: 'm' },
+					{ name: 'Sticky (Y)', value: 'y' },
+					{ name: 'Unicode (U)', value: 'u' },
 				],
 				default: [],
-				required: false,
+
 				description: 'Select the regex flags you want to apply',
 			},
 		],

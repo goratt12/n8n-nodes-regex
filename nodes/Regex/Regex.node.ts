@@ -55,6 +55,13 @@ export class Regex implements INodeType {
 
 				description: 'Select the regex flags you want to apply',
 			},
+			{
+				displayName: 'Keep Full Match',
+				name: 'keepFullMatch',
+				type: 'boolean',
+				default: true,
+				description: 'Include the full matched string as `match` in the output. Turn off to output only capture-group fields.',
+			},
 		],
 	};
 
@@ -62,20 +69,20 @@ export class Regex implements INodeType {
 		const items = this.getInputData();
 		const returnItems: INodeExecutionData[] = [];
 
-		const buildMatchOutput = (execArray: RegExpExecArray): IDataObject => {
+		const buildMatchOutput = (execArray: RegExpExecArray, keepFullMatch: Boolean): IDataObject => {
 			const result: IDataObject = {};
-		
+
 			// Full match
-			result.match = execArray[0];
-		
+			if (keepFullMatch) result.match = execArray[0];
+
 			// Track named group indices (not values)
 			const groups = (execArray as any).groups || {};
 			const namedGroupIndices = new Set<number>();
-		
+
 			// Add named groups
 			for (const [name, value] of Object.entries(groups)) {
 				result[name] = value as string | null;
-		
+
 				// Try to find which index in execArray matches this named group
 				for (let i = 1; i < execArray.length; i++) {
 					if (execArray[i] === value) {
@@ -84,7 +91,7 @@ export class Regex implements INodeType {
 					}
 				}
 			}
-		
+
 			// Add unnamed groups as group1, group2, etc.
 			let unnamedGroupCounter = 1;
 			for (let i = 1; i < execArray.length; i++) {
@@ -93,7 +100,7 @@ export class Regex implements INodeType {
 					unnamedGroupCounter++;
 				}
 			}
-		
+
 			return result;
 		};
 
@@ -101,6 +108,7 @@ export class Regex implements INodeType {
 			const text = this.getNodeParameter('text', itemIndex) as string;
 			const pattern = this.getNodeParameter('pattern', itemIndex) as string;
 			const selectedFlags = this.getNodeParameter('flags', itemIndex) as string[];
+			const keepFullMatch = this.getNodeParameter('keepFullMatch', itemIndex) as boolean;
 
 			// Combine flags
 			const flagsString = selectedFlags.join('');
@@ -121,7 +129,7 @@ export class Regex implements INodeType {
 				let execArray: RegExpExecArray | null;
 				while ((execArray = regex.exec(text)) !== null) {
 					returnItems.push({
-						json: buildMatchOutput(execArray),
+						json: buildMatchOutput(execArray, keepFullMatch),
 					});
 				}
 			} else {
@@ -129,7 +137,7 @@ export class Regex implements INodeType {
 				const execArray = regex.exec(text);
 				if (execArray) {
 					returnItems.push({
-						json: buildMatchOutput(execArray),
+						json: buildMatchOutput(execArray, keepFullMatch),
 					});
 				}
 			}

@@ -37,7 +37,10 @@ This node provides the following operation:
 - **Flags**: Optional modifiers such as:
   - `g` (global): Find all matches.
   - `i` (ignore case): Case-insensitive match.
-  - `m` (multiline), `s` (dot matches newline), `u` (unicode), `y` (sticky).
+  - `m` (multiline)
+  - `s` (dot matches newline)
+  - `u` (unicode)
+  - `y` (sticky).
 
 ### Output
 

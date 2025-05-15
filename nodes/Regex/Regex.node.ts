@@ -62,27 +62,38 @@ export class Regex implements INodeType {
 		const items = this.getInputData();
 		const returnItems: INodeExecutionData[] = [];
 
-		// Define the helper as a local function (or arrow function)
 		const buildMatchOutput = (execArray: RegExpExecArray): IDataObject => {
 			const result: IDataObject = {};
+		
 			// Full match
 			result.match = execArray[0];
-
-			// Named groups?
+		
+			// Track named group indices (not values)
 			const groups = (execArray as any).groups || {};
-			const namedGroupKeys = Object.keys(groups);
-
-			if (namedGroupKeys.length > 0) {
-				for (const groupName of namedGroupKeys) {
-					result[groupName] = groups[groupName];
-				}
-			} else {
-				// Non-named groups => group1, group2, ...
+			const namedGroupIndices = new Set<number>();
+		
+			// Add named groups
+			for (const [name, value] of Object.entries(groups)) {
+				result[name] = value as string | null;
+		
+				// Try to find which index in execArray matches this named group
 				for (let i = 1; i < execArray.length; i++) {
-					result[`group${i}`] = execArray[i];
+					if (execArray[i] === value) {
+						namedGroupIndices.add(i);
+						break; // only mark first match to avoid conflicts
+					}
 				}
 			}
-
+		
+			// Add unnamed groups as group1, group2, etc.
+			let unnamedGroupCounter = 1;
+			for (let i = 1; i < execArray.length; i++) {
+				if (!namedGroupIndices.has(i)) {
+					result[`group${unnamedGroupCounter}`] = execArray[i];
+					unnamedGroupCounter++;
+				}
+			}
+		
 			return result;
 		};
 

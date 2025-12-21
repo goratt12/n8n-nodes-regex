@@ -3,7 +3,7 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-	IExecuteFunctions
+	IExecuteFunctions,
 } from 'n8n-workflow';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
@@ -60,7 +60,8 @@ export class Regex implements INodeType {
 				name: 'keepFullMatch',
 				type: 'boolean',
 				default: true,
-				description: 'Include the full matched string as `match` in the output. Turn off to output only capture-group fields.',
+				description:
+					'Whether to include the full matched string as `match` in the output. Turn off to output only capture-group fields.',
 			},
 		],
 	};
@@ -120,17 +121,20 @@ export class Regex implements INodeType {
 			} catch (error) {
 				throw new NodeOperationError(
 					this.getNode(),
-					`Invalid regex pattern: ${(error as Error).message}`
+					`Invalid regex pattern: ${(error as Error).message}`,
 				);
 			}
 
 			// If 'g' is selected, repeatedly exec
 			if (flagsString.includes('g')) {
 				let execArray: RegExpExecArray | null;
+				let matchIndex = 0;
 				while ((execArray = regex.exec(text)) !== null) {
 					returnItems.push({
 						json: buildMatchOutput(execArray, keepFullMatch),
+						pairedItem: { item: itemIndex, input: matchIndex },
 					});
+					matchIndex++;
 				}
 			} else {
 				// Single match
@@ -138,6 +142,7 @@ export class Regex implements INodeType {
 				if (execArray) {
 					returnItems.push({
 						json: buildMatchOutput(execArray, keepFullMatch),
+						pairedItem: { item: itemIndex },
 					});
 				}
 			}
